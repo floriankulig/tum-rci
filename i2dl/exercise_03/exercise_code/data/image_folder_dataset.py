@@ -74,60 +74,23 @@ class ImageFolderDataset(Dataset):
         return images, labels
 
     def __len__(self):
-        length = None
-        ########################################################################
-        # TODO:                                                                #
-        # Return the length of the dataset (number of images)                  #
-        ########################################################################
-
-        pass
-
-        ########################################################################
-        #                           END OF YOUR CODE                           #
-        ########################################################################
-        return length
+        return len(self.images)
 
     @staticmethod
     def load_image_as_numpy(image_path):
         """Load image from image_path as numpy array"""
         return np.asarray(Image.open(image_path), dtype=float)
 
-    def __getitem__(self, index):
-        data_dict = None
-        ########################################################################
-        # TODO:                                                                #
-        # Create a dict of the data at the given index in your dataset         #
-        # The dict should be of the following format:                          #
-        # {"image": <i-th image>,                                              #
-        # "label": <label of i-th image>}                                      #
-        #                                                                      #
-        # Hint 1:                                                              #
-        #   use self.load_image_as_numpy() to load an image from a             #
-        #   file path. Note: you have to use "self.load_image_as_numpy()"      #
-        #   and not "ImageFolderDataset.load_image_as_numpy()", as it will     #
-        #  cause a bug, when using  MemoryImageFolderDataset                   #
-        #                                                                      # 
-        # Hint 2:                                                              #
-        #   If applicable (Task 4: 'Transforms and Image Preprocessing'),      #
-        #   make sure to apply self.transform to the image if self.transform   #
-        #   is defined (not None):                                             #
-        #               image_transformed = self.transform(image)              #
-        #                                                                      #
-        # Hint 3:                                                              #
-        #   The labels are supposed to be numbers, in the range of [0, 9],     #
-        #   not strings.                                                       #
-        #                                                                      #    
-        # Hint 4: the labels and images are already prepared and stored in     #
-        #  self.labels and self.images. DO NOT call self.make_dataset() again! #    
-        ########################################################################
-   
+    def __getitem__(self, idx):
+        image = self.load_image_as_numpy(self.images[idx])
+        if self.transform:
+            image = self.transform(image)
 
-        pass
-
-        ########################################################################
-        #                           END OF YOUR CODE                           #
-        ########################################################################
-        return data_dict
+        image_data = {
+            "image": image,
+            "label": self.labels[idx]
+        }
+        return image_data
 
 
 class MemoryImageFolderDataset(ImageFolderDataset):
