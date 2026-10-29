@@ -8,6 +8,7 @@ class DataLoader:
     Dataloader Class
     Defines an iterable batch-sampler over a given dataset
     """
+
     def __init__(self, dataset, batch_size=1, shuffle=False, drop_last=False):
         """
         :param dataset: dataset from which to load the data
@@ -43,13 +44,36 @@ class DataLoader:
         #       - build_batch_iterator                                         #
         #     in section 1 of the notebook.                                    #
         ########################################################################
-        
 
-        pass
+        if self.shuffle:
+            iterator = iter(np.random.permutation(len(self.dataset)))
+        else:
+            iterator = iter(range(len(self.dataset)))
 
+        curr_batch = []
+        for idx in iterator:
+            curr_batch.append(self.dataset[idx])
+
+            if len(curr_batch) == self.batch_size:
+                yield self._build_batch_dict(curr_batch)
+                curr_batch = []
+
+        if curr_batch and not self.drop_last:
+            yield self._build_batch_dict(curr_batch)
         ########################################################################
         #                           END OF YOUR CODE                           #
         ########################################################################
+
+    def _build_batch_dict(self, batch):
+        batch_dict = {}
+        for label_value_pair in batch:
+            for key, value in label_value_pair.items():
+                if key not in batch_dict:
+                    batch_dict[key] = []
+                batch_dict[key].append(value)
+
+        batch_dict = {label: np.array(values) for label, values in batch_dict.items()}
+        return batch_dict
 
     def __len__(self):
         length = None
@@ -59,10 +83,14 @@ class DataLoader:
         # Hint: this is the number of batches you can sample from the dataset. #
         # Don't forget to check for drop last (self.drop_last)!                #
         ########################################################################
-        
 
-        pass
+        r = len(self.dataset) % self.batch_size
+        length = len(self.dataset) // self.batch_size
 
+        if self.drop_last:
+            return length
+
+        length = length + 1 if r else length
         ########################################################################
         #                           END OF YOUR CODE                           #
         ########################################################################
